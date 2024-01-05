@@ -1,5 +1,9 @@
 package src;
 
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.format.DateTimeFormatter;
+
 /*
     Fait référence a la réservation d'une chambre
  */
@@ -8,7 +12,7 @@ public class Reservation extends Action {
     protected static int count = 0;
     private String Arrivee;
     private String Depart;
-    protected final int idReservation;
+    private final int idReservation;
 
     public Reservation(Client c, String arv, String dep) {
         super(c);
@@ -33,5 +37,13 @@ public class Reservation extends Action {
 
     public int getIdReservation() {
         return idReservation;
+    }
+
+    public int nbNuits(){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        LocalDate arv = LocalDate.parse(this.Arrivee, formatter);
+        LocalDate dep = LocalDate.parse(this.Depart, formatter);
+        Period periode = Period.between(arv, dep);
+        return periode.getDays()-1;// -1 Car c'est bien le nombre de NUIT que l'on souhaite
     }
 }

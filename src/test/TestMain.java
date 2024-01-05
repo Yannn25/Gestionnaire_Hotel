@@ -35,9 +35,17 @@ public class TestMain {
         hotel.Modifier(1,"15/01/2024", "20/01/2024");
         hotel.AfficheOccupe();
         System.out.println("\n-------------\nAnnulation de la reservation n°1 et suppresion de la reservation n°2");
-        hotel.Annuler(1);
-        hotel.Supprimer(2);
+        //hotel.Annuler(1);
+        //hotel.Supprimer(2);
         hotel.AfficheOccupe();
+
+
+        //4.Commander un repas
+
+
+        //5. Facture du Client
+        System.out.println(p1.getFacture().toString());
+        p1.getFacture().detailFacture();
     }
 
 }

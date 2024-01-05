@@ -15,7 +15,7 @@ public class Chambre implements Disponibilite {
     private static int count = 0;
     protected Place place;
     protected Type type;
-    private int prix;
+    private int prix;//Prix pour une nuit
     private final int idChambre;
     private List<Reservation> occupations;
 
@@ -128,7 +128,7 @@ public class Chambre implements Disponibilite {
         }
 
         for(Reservation r : this.occupations) {
-            if(r.idReservation == numR) {
+            if(r.getIdReservation() == numR) {
                 r.setArrivee(newDeb);
                 r.setDepart(newFin);
             }
@@ -138,4 +138,6 @@ public class Chambre implements Disponibilite {
     public void supReservation(int id) {
         occupations.removeIf(reservation -> reservation.getIdReservation() == id);
     }
+
+
 }

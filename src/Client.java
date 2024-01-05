@@ -13,5 +13,31 @@ public class Client {
         this.idClient = ++count;
         this.prenom = p;
         this.nom = n;
+        this.facture = new Facture();
     }
+
+    public int getIdClient() {
+        return idClient;
+    }
+
+    public String getPrenom() {
+        return prenom;
+    }
+
+    public void setPrenom(String prenom) {
+        this.prenom = prenom;
+    }
+
+    public String getNom() {
+        return nom;
+    }
+
+    public void setNom(String nom) {
+        this.nom = nom;
+    }
+
+    public Facture getFacture() {
+        return facture;
+    }
+
 }

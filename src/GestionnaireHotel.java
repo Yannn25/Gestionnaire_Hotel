@@ -74,6 +74,7 @@ public class GestionnaireHotel {
         }
         try {
             c.addReservation(r);
+            r.getClient().getFacture().detail.put(r, r.nbNuits() * c.getPrix());
         } catch (DateException e) {
             System.out.println(e.getMessage());
         }
@@ -87,6 +88,7 @@ public class GestionnaireHotel {
                 flag = true;
                 try {
                     chambre.modifReservation(numR, newDeb, newDep);
+                    chambre.getReservationById(numR).getClient().getFacture().detail.put(chambre.getReservationById(numR),chambre.getReservationById(numR).nbNuits() * chambre.getPrix());
                 } catch (DateException e) {
                     throw new RuntimeException(e);
                 }
@@ -95,7 +97,7 @@ public class GestionnaireHotel {
         }
         if (!flag) {
             try {
-                throw new RuntimeException("Il semblerait qu'aucune réservation ne corresponde à votre demande");
+                throw new ContenuException("Il semblerait qu'aucune réservation ne corresponde à votre demande");
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -127,6 +129,7 @@ public class GestionnaireHotel {
             if (chambre.containsReservation(numR)) {
                 flag = true;
                 chambre.getReservationById(numR).setValide(false);
+                chambre.getReservationById(numR).getClient().getFacture().supAction(numR);
                 chambre.supReservation(numR);
                 break;
             }
