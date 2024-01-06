@@ -1,10 +1,12 @@
 package src;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
-public class Facture {
+public class Facture implements Serializable {
 
     private double total;
+
     protected HashMap<Action, Integer> detail;
 
     public Facture() {
@@ -12,29 +14,39 @@ public class Facture {
         this.detail = new HashMap<>();
     }
 
-    public String toString() {
-        calculFacture();
-        return "Le montant de la facture s'élève à "+this.total+"€";
+    public double getTotal() {
+        return total;
     }
 
-    public void detailFacture() {
+    public String toString() {
+        calculFacture();
+        return " s'élève à "+this.total+"€";
+    }
+
+    public String detailFacture() {
+        String res = "";
         for(Action a : detail.keySet()) {
             if(a instanceof Reservation){
                 Reservation r = (Reservation) a;
-                System.out.println("Reservation du "+r.getArrivee()+" au "+r.getDepart()
-                +" : "+detail.get(r)+"€");
+                res += "Reservation du "+r.getArrivee()+" au "+r.getDepart()
+                +" : "+detail.get(r)+"€";
             }
             if(a instanceof Commande) {
-                System.out.println("");
+                res += "Commande ";
             }
             if(a instanceof Menage) {
-                System.out.println("");
+                res += "Menage du ";
             }
         }
+        return res;
     }
 
-    public void supAction(int id) {
-
+    public void supReservation(int id) {
+        for(Action a : detail.keySet()) {
+            if(a instanceof Reservation){
+                detail.remove(a);
+            }
+        }
     }
 
     public void calculFacture() {

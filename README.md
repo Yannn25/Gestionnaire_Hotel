@@ -1,6 +1,8 @@
 # Gestionnaire_Hotel
 EDIKEU Yann et BLANEUS Velain
 
+La version minimum du jdk java17 est requis! 
+
 Pour compiler le Main du projet :
 
     javac src/Main.java

@@ -3,11 +3,12 @@ package src;
 import src.erreurs.ContenuException;
 import src.erreurs.DateException;
 
-import java.util.ArrayList;
+
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
-public class GestionnaireHotel {
+public class GestionnaireHotel implements Serializable {
 
     protected String NomHotel;
     private List<Chambre> chambres;
@@ -45,6 +46,29 @@ public class GestionnaireHotel {
         return ret;
     }
 
+    public void afficheClients() {
+        for (Client c : getClients()) {
+            System.out.println(c);
+        }
+    }
+
+    public void AllFacture(){
+        double total = 0.0;
+        for (Client c : getClients()) {
+            System.out.println(c.ClientMontantFacture());
+            total += c.getFacture().getTotal();
+        }
+        System.out.println("L'ensemble des factures de l'établisement "+ this.NomHotel +" s'élève à " + total+"€");
+    }
+
+    private boolean allEmpty() {
+        for (Chambre c : chambres) {
+            if(!c.getOccupations().isEmpty())
+                return false;
+        }
+        return true;
+    }
+
     public void printChambres() {
         System.out.println("L'ensemble des chambres de " + this.NomHotel +" sont :");
         for(Chambre c : chambres) {
@@ -57,13 +81,45 @@ public class GestionnaireHotel {
             System.out.println(c.DateDispo());
         }
     }
+
     public void AfficheOccupe() {
+        if(allEmpty()){
+            System.out.println("Aucune réservation dans l'hotel pour le moment !");
+        }
         for(Chambre c : chambres) {
             if(!c.getOccupations().isEmpty())
                 System.out.println(c.DateOccupe());
         }
     }
 
+    public Client clientContenu(String p, String n) {
+        for (Client c : getClients()) {
+            if(c.getPrenom() == p && c.getNom() == n)
+                return c;
+        }
+        return null;
+    }
+
+
+    public Chambre getChambreById(int id) {
+        for (Chambre c : chambres) {
+            if(c.getIdChambre() == id)
+                return c;
+        }
+        return null;
+    }
+
+    public boolean containsReservation(int numR) {
+        for (Chambre c : chambres) {
+            if(containsReservation(numR))
+                return true;
+        }
+        return false;
+    }
+
+    public Client getClientById(int id) {
+        return getClients().stream().filter(c -> c.getIdClient() == id).findFirst().get();
+    }
     public void Reserver(Reservation r, Chambre c)  {
         if(!chambres.contains(c)) {
             try {
@@ -116,7 +172,7 @@ public class GestionnaireHotel {
         }
         if (!flag) {
             try {
-                throw new RuntimeException("Il semblerait qu'aucune réservation ne corresponde à votre demande");
+                throw new ContenuException("Il semblerait qu'aucune réservation ne corresponde à votre demande");
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -129,17 +185,18 @@ public class GestionnaireHotel {
             if (chambre.containsReservation(numR)) {
                 flag = true;
                 chambre.getReservationById(numR).setValide(false);
-                chambre.getReservationById(numR).getClient().getFacture().supAction(numR);
+                chambre.getReservationById(numR).getClient().getFacture().supReservation(numR);
                 chambre.supReservation(numR);
                 break;
             }
         }
         if (!flag) {
             try {
-                throw new RuntimeException("Il semblerait qu'aucune réservation ne corresponde à votre demande");
+                throw new ContenuException("Il semblerait qu'aucune réservation ne corresponde à votre demande");
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
     }
+
 }
