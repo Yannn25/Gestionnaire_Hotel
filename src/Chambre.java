@@ -3,19 +3,19 @@ package src;
 import src.Enum.*;
 import src.erreurs.*;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 
-public class Chambre implements Disponibilite {
+public class Chambre implements Serializable {
 
     private static int count = 0;
     protected Place place;
     protected Type type;
-    private int prix;
+    private int prix;//Prix pour une nuit
     private final int idChambre;
     private List<Reservation> occupations;
 
@@ -29,14 +29,14 @@ public class Chambre implements Disponibilite {
     }
 
     public int getPrix() {
-        return prix;
+        return this.prix;
     }
     public void setPrix(int prix) {
         this.prix = prix;
     }
 
     public int getIdChambre() {
-        return idChambre;
+        return this.idChambre;
     }
 
     public List<Reservation> getOccupations() {
@@ -56,6 +56,23 @@ public class Chambre implements Disponibilite {
         }
         return null;
     }
+
+    public boolean verifOccupation(String deb, String fin) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        LocalDate dateDeb = LocalDate.parse(deb, formatter);
+        LocalDate dateFin = LocalDate.parse(fin, formatter);
+
+        for (Reservation reservation : occupations) {
+            LocalDate arvRes = LocalDate.parse(reservation.getArrivee(), formatter);
+            LocalDate depRes = LocalDate.parse(reservation.getDepart(), formatter);
+            if ((arvRes.isBefore(dateFin) || arvRes.isEqual(dateFin)) &&
+                    (depRes.isAfter(dateDeb) || depRes.isEqual(dateDeb))) {
+                return true; // La chambre est occupée à l'une des dates spécifiées
+            }
+        }
+        return false;
+    }
+
     @Override
     public String toString(){
         return "Voici la chambre n°"+this.idChambre+ ", elle est de type "+this.type+" avec un lit " + this.place +
@@ -65,32 +82,29 @@ public class Chambre implements Disponibilite {
     public String DateDispo() {
         StringBuilder res = new StringBuilder("La chambre n°" + this.idChambre + " est disponible aux dates suivantes :\n");
         LocalDate ojrd = LocalDate.now();
-
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
         // Ajouter l'intervalle depuis le début jusqu'à la première réservation
         if (!occupations.isEmpty()) {
             LocalDate dateDebutPremiereResa = LocalDate.parse(occupations.get(0).getArrivee(), formatter);
             res.append(ojrd.format(formatter)).append(" au ").append(dateDebutPremiereResa.minusDays(1).format(formatter)).append("\n");
         }
-
         // Ajouter les intervalles entre les réservations
         for (int i = 0; i < occupations.size() - 1; i++) {
             LocalDate dateFinResaActuelle = LocalDate.parse(occupations.get(i).getDepart(), formatter);
             LocalDate dateDebutResaSuivante = LocalDate.parse(occupations.get(i + 1).getArrivee(), formatter);
             res.append(dateFinResaActuelle.plusDays(1).format(formatter)).append(" au ").append(dateDebutResaSuivante.minusDays(1).format(formatter)).append("\n");
         }
-
         // Ajouter l'intervalle depuis la dernière réservation jusqu'à la fin du mois
         if (!occupations.isEmpty()) {
             LocalDate dateFinDerniereResa = LocalDate.parse(occupations.get(occupations.size() - 1).getDepart(), formatter);
-            res.append(dateFinDerniereResa.plusDays(1).format(formatter)).append(" au ").append(ojrd.plusMonths(1).minusDays(1).format(formatter)).append("\n");
+            res.append(dateFinDerniereResa.plusDays(1).format(formatter)).append(" au ").append(dateFinDerniereResa.plusMonths(1).withDayOfMonth(1).minusDays(1).format(formatter)).append("\n");
         } else {
-            // Si la chambre n'a aucune réservation, ajouter l'intervalle complet du mois
-            res.append(ojrd.format(formatter)).append(" au ").append(ojrd.plusMonths(1).minusDays(1).format(formatter)).append("\n");
+            // Si la chambre n'a aucune réservation ajouter l'intervalle complet du mois
+            res.append(ojrd.format(formatter)).append(" au ").append(ojrd.plusMonths(1).withDayOfMonth(1).minusDays(1).format(formatter)).append("\n");
         }
         return res.toString();
     }
+
 
     public String DateOccupe() {
         String res = "La chambre n°"+this.idChambre+" est reserver du ";
@@ -116,6 +130,9 @@ public class Chambre implements Disponibilite {
         if (dep.isBefore(arv)) {
             throw new DateException("La date de départ doit être postérieure à la date d'arrivée.");
         }
+        if(verifOccupation(r.getArrivee(),r.getDepart())) {
+            throw new DateException("La chambre est occuper a l'une des dates selectiones ");
+        }
         this.occupations.add(r);
     }
 
@@ -128,7 +145,7 @@ public class Chambre implements Disponibilite {
         }
 
         for(Reservation r : this.occupations) {
-            if(r.idReservation == numR) {
+            if(r.getIdReservation() == numR) {
                 r.setArrivee(newDeb);
                 r.setDepart(newFin);
             }
@@ -138,4 +155,6 @@ public class Chambre implements Disponibilite {
     public void supReservation(int id) {
         occupations.removeIf(reservation -> reservation.getIdReservation() == id);
     }
+
+
 }
